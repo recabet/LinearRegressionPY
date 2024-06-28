@@ -2,39 +2,44 @@ import numpy as np
 
 
 class LinearRegression:
-	def __init__ (self, rate=0.01, iter=10):
+	def __init__ (self, rate=0.01, iter=10000):
 		self.rate = rate
 		self.iter = iter
 		self.k = 0
 		self.b = 0
+		self.X_mean = 0
+		self.X_std = 1
+		self.y_mean = 0
+		self.y_std = 1
 	
 	def fit (self, X, y):
 		n = len(y)
-		self.k = np.random.randn()
-		self.b = np.random.randn()
-		cost_history = np.zeros(self.iter)
+		
+		self.X_mean = np.mean(X)
+		self.X_std = np.std(X)
+		self.y_mean = np.mean(y)
+		self.y_std = np.std(y)
+		
+		X_normalized = (X - self.X_mean) / self.X_std
+		y_normalized = (y - self.y_mean) / self.y_std
 		
 		for i in range(self.iter):
-			y_pred = self.k * X + self.b
-			error = y_pred - y
-			k_gradient = (1 / n) * np.sum(error * X)
+			y_pred = self.k * X_normalized + self.b
+			error = y_pred - y_normalized
+			k_gradient = (1 / n) * np.sum(error * X_normalized)
 			b_gradient = (1 / n) * np.sum(error)
 			self.k -= self.rate * k_gradient
 			self.b -= self.rate * b_gradient
 			
-			cost = self.compute_cost(X, y)
-			cost_history[i] = cost
-			
-			# Debugging print statement
-			if (i + 1) % 1 == 0:
-				print(f"Iteration {i + 1}: k = {self.k}, b = {self.b}, cost = {cost}")
+		self.k = self.k * (self.y_std / self.X_std)
+		self.b = self.b * self.y_std + self.y_mean - self.k * self.X_mean
 		
-		return self.k, self.b, cost_history
+		return self.k, self.b
 	
 	def compute_cost (self, X, y):
 		m = len(y)
-		pred = X * self.k + self.b
-		cost = np.sum((pred - y) ** 2) / (2 * m)
+		pred = self.predict(X)
+		cost = (1 / (2 * m)) * np.sum((pred - y) ** 2)
 		return cost
 	
 	def predict (self, X):
@@ -48,5 +53,8 @@ class LinearRegression:
 		return r2
 	
 	def error (self, X, y):
-		err = np.mean((self.predict(X) - y) / y) * 100
-		return err
+		err = 0
+		for i in zip(self.predict(X), y):
+			err += (i[0] - i[1]) / len(y) / i[1]
+		return err * 100
+
