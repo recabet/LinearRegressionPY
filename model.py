@@ -1,44 +1,65 @@
 import numpy as np
 
-
 class LinearRegression:
-	def __init__ (self, rate=0.01, iter=10):
+	def __init__ (self, rate=0.01, iter=1000):
 		self.rate = rate
 		self.iter = iter
-		self.k = None
-		self.b = None
+		self.w = None
+		self.b = np.random.randn()
+		self.X_mean = None
+		self.X_std = None
+		self.y_mean = 0
+		self.y_std = 1
+	
+	def __normalize (self, X, y):
+		self.X_mean = np.mean(X, axis=0)
+		self.X_std = np.std(X, axis=0)
+		self.y_mean = np.mean(y)
+		self.y_std = np.std(y)
+		X_normalized = (X - self.X_mean) / self.X_std
+		y_normalized = (y - self.y_mean) / self.y_std
+		return X_normalized, y_normalized
 	
 	def fit (self, X, y):
-		n = len(y)
-		self.k = np.random.randn()
-		self.b = np.random.randn()
-		cost_history = np.zeros(self.iter)
+		if X.ndim == 1:
+			X = X.reshape(-1, 1)
+		if y.ndim == 2:
+			y = y.flatten()
+		
+		n, m = X.shape
+		self.w = np.random.randn(m)
+		
+		X_normalized, y_normalized = self.__normalize(X, y)
 		
 		for i in range(self.iter):
-			y_pred = self.k * X + self.b
-			error = y_pred - y
-			k_gradient = (1 / 2 * n) * np.sum(error * X)
-			b_gradient = (1 / 2 * n) * np.sum(error)
-			self.k -= self.rate * k_gradient
+			y_pred = np.dot(X_normalized, self.w) + self.b
+			error = y_pred - y_normalized
+			w_gradient = (1 / n) * np.dot(X_normalized.T, error)
+			b_gradient = (1 / n) * np.sum(error)
+			self.w -= self.rate * w_gradient
 			self.b -= self.rate * b_gradient
-			
-			cost = self.compute_cost(X, y)
-			cost_history[i] = cost
 		
-		# Debugging print statement
-		# if (i + 1) % 100 == 0:
-		#     print(f"Iteration {i + 1}: k = {self.k}, b = {self.b}, cost = {cost}")
+		self.w = self.w * (self.y_std / self.X_std)
+		self.b = self.b * self.y_std + self.y_mean - np.dot(self.w, self.X_mean)
 		
-		return self.k, self.b, cost_history
+		return self.w, self.b
 	
 	def compute_cost (self, X, y):
+		if X.ndim == 1:
+			X = X.reshape(-1, 1)
+		if y.ndim == 2:
+			y = y.flatten()
+		
 		m = len(y)
-		pred = X * self.k + self.b
+		pred = self.predict(X)
 		cost = (1 / (2 * m)) * np.sum((pred - y) ** 2)
 		return cost
 	
 	def predict (self, X):
-		return X * self.k + self.b
+		if X.ndim == 1:
+			X = X.reshape(-1, 1)
+		
+		return np.dot(X, self.w) + self.b
 	
 	def r_squared (self, X, y):
 		y_pred = self.predict(X)
@@ -52,6 +73,4 @@ class LinearRegression:
 		for i in zip(self.predict(X), y):
 			err += (i[0] - i[1]) / len(y) / i[1]
 		return err * 100
-
-
 
