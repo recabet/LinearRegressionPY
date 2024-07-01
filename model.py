@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class LinearRegression:
 	def __init__ (self, rate=0.01, iter=1000):
 		self.rate = rate
