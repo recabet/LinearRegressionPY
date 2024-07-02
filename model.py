@@ -1,9 +1,10 @@
 import numpy as np
 
 class LinearRegression:
-	def __init__ (self, rate=0.01, iter=1000):
+	def __init__ (self, rate=0.01, iter=1000,normalize=True):
 		self.rate = rate
 		self.iter = iter
+		self.normalize = normalize
 		self.w = None
 		self.b = np.random.randn()
 		self.X_mean = None
@@ -29,12 +30,13 @@ class LinearRegression:
 		n, m = X.shape
 		self.w = np.random.randn(m)
 		
-		X_normalized, y_normalized = self.__normalize(X, y)
+		if self.normalize:
+			X, y = self.__normalize(X, y)
 		
 		for i in range(self.iter):
-			y_pred = np.dot(X_normalized, self.w) + self.b
-			error = y_pred - y_normalized
-			w_gradient = (1 / n) * np.dot(X_normalized.T, error)
+			y_pred = np.dot(X, self.w) + self.b
+			error = y_pred - y
+			w_gradient = (1 / n) * np.dot(X.T, error)
 			b_gradient = (1 / n) * np.sum(error)
 			self.w -= self.rate * w_gradient
 			self.b -= self.rate * b_gradient
@@ -58,7 +60,6 @@ class LinearRegression:
 	def predict (self, X):
 		if X.ndim == 1:
 			X = X.reshape(-1, 1)
-		
 		return np.dot(X, self.w) + self.b
 	
 	def r_squared (self, X, y):
@@ -73,4 +74,6 @@ class LinearRegression:
 		for i in zip(self.predict(X), y):
 			err += (i[0] - i[1]) / len(y) / i[1]
 		return err * 100
+
+
 
