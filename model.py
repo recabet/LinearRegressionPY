@@ -1,6 +1,6 @@
 import numpy as np
 
-class LinearRegression:
+class my_LinearRegression:
 	def __init__ (self, rate=0.01, iter=1000,normalize=True):
 		self.rate = rate
 		self.iter = iter
@@ -69,11 +69,10 @@ class LinearRegression:
 		r2 = 1 - (ss_residual / ss_total)
 		return r2
 	
-	def error (self, X, y):
-		err = 0
-		for i in zip(self.predict(X), y):
-			err += (i[0] - i[1]) / len(y) / i[1]
-		return err * 100
+	def error (self,X, y):
+		y_predict=np.array([self.predict(X)])
+		return np.sum(abs(y_predict- y) /y) / len(y) * 100
+
 
 
 
