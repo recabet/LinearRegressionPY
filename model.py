@@ -2,9 +2,9 @@ import numpy as np
 
 
 class my_LinearRegression:
-	def __init__ (self, rate=0.01, iter=1000, normalize=True):
+	def __init__ (self, rate=0.01, iterations=1000, normalize=True):
 		self.rate = rate
-		self.iter = iter
+		self.iterations = iterations
 		self.normalize = normalize
 		self.w = None
 		self.b = np.random.randn()
@@ -34,7 +34,7 @@ class my_LinearRegression:
 		if self.normalize:
 			X, y = self.__normalize(X, y)
 		
-		for i in range(self.iter):
+		for i in range(self.iterations):
 			y_pred = np.dot(X, self.w) + self.b
 			error = y_pred - y
 			w_gradient = (1 / n) * np.dot(X.T, error)
