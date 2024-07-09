@@ -1,7 +1,8 @@
 import numpy as np
 
+
 class my_LinearRegression:
-	def __init__ (self, rate=0.01, iter=1000,normalize=True):
+	def __init__ (self, rate=0.01, iter=1000, normalize=True):
 		self.rate = rate
 		self.iter = iter
 		self.normalize = normalize
@@ -40,9 +41,9 @@ class my_LinearRegression:
 			b_gradient = (1 / n) * np.sum(error)
 			self.w -= self.rate * w_gradient
 			self.b -= self.rate * b_gradient
-		
-		self.w = self.w * (self.y_std / self.X_std)
-		self.b = self.b * self.y_std + self.y_mean - np.dot(self.w, self.X_mean)
+		if self.normalize:
+			self.w = self.w * (self.y_std / self.X_std)
+			self.b = self.b * self.y_std + self.y_mean - np.dot(self.w, self.X_mean)
 		
 		return self.w, self.b
 	
@@ -69,10 +70,6 @@ class my_LinearRegression:
 		r2 = 1 - (ss_residual / ss_total)
 		return r2
 	
-	def error (self,X, y):
-		y_predict=np.array([self.predict(X)])
-		return np.sum(abs(y_predict- y) /y) / len(y) * 100
-
-
-
-
+	def error (self, X, y):
+		y_predict = np.array([self.predict(X)])
+		return np.sum(abs(y_predict - y) / y) / len(y) * 100
