@@ -2,9 +2,9 @@ import numpy as np
 
 
 class my_LinearRegression:
-	def __init__ (self, rate=0.01, iter=1000, normalize=True):
+	def __init__ (self, rate=0.01, iterations=1000, normalize=True):
 		self.rate = rate
-		self.iter = iter
+		self.iter = iterations
 		self.normalize = normalize
 		self.w = None
 		self.b = np.random.randn()
