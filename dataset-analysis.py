@@ -7,8 +7,8 @@ from scipy.stats import norm
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 
-
 df = pd.read_csv("c_class_listings.csv")
+
 
 def to_azn (col):
 	if "AZN" in col:
@@ -16,7 +16,7 @@ def to_azn (col):
 	return float(col.split()[0]) * 1.7
 
 
-df2 = df[["Year", "Model", "Price", "Mielage", "Fuel type","HP"]].copy()
+df2 = df[["Year", "Model", "Price", "Mielage", "Fuel type", "HP"]].copy()
 
 df2["Price"] = df2["Price"].apply(to_azn)
 df2.rename({"Price": "Price_AZN"}, axis="columns", inplace=True)
@@ -98,6 +98,7 @@ plt.show()
 def create_predictions ():
 	return test_model1.predict(np.array(df2[["Mileage", "Year"]]))
 
+
 df2["Predictions"] = create_predictions()
 
 fig2 = plt.figure(figsize=(10, 8))
@@ -113,43 +114,44 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
-#Now let's use 3 features
 
-def remove_hp(col):
+# Now let's use 3 features
+
+def remove_hp (col):
 	return int(col.split()[0])
 
 
 df2["HP"] = df2["HP"].apply(remove_hp)
 
-builtin_model=LinearRegression()
+builtin_model = LinearRegression()
 test_model2 = model.my_LinearRegression()
 
-x=np.array(df2[["Mileage", "Year","HP"]])
-y=np.array(df2["Price_AZN"])
+x = np.array(df2[["Mileage", "Year", "HP"]])
+y = np.array(df2["Price_AZN"])
 
-x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.3, random_state=42)
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=42)
 
 test_model2.fit(x_train, y_train)
 
 builtin_model.fit(x_train, y_train)
 
 y_pred_builtin = builtin_model.predict(x_test)
-y_pred_my_model=test_model2.predict(x_test)
+y_pred_my_model = test_model2.predict(x_test)
 
 df2.drop("Predictions", axis=1, inplace=True)
 
-results=pd.DataFrame()
-results["Real Price"]=y_test
-results["Predicted Price my model"]=y_pred_my_model
-results["Predicted Price sklearn"]=y_pred_builtin
+results = pd.DataFrame()
+results["Real Price"] = y_test
+results["Predicted Price my model"] = y_pred_my_model
+results["Predicted Price sklearn"] = y_pred_builtin
 
 print(results)
 
-def calculate_err(y_true, y_pred):
-	return sum(abs(y_true-y_pred)/(y_true))/len(y_true)*100
-	
-print(f"Error of My model in % : {test_model2.error(x_test,y_test)}")
+
+def calculate_err (y_true, y_pred):
+	return sum(abs(y_true - y_pred) / y_true) / len(y_true) * 100
+
+
+print(f"Error of My model in % : {test_model2.error(x_test, y_test)}")
 print(f"Error of builtin model in % : {calculate_err(y_test, y_pred_builtin)}")
-
 print(f"r-squared value: {test_model2.r_squared(x_test, y_test)}")
-
